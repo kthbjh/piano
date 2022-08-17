@@ -14,13 +14,13 @@ const int isCorrectRgbs[3][2] = {
     }
 };
 const int hz[] = {
-    262, 277, 294, 311, 330, 349, 370, 415, 440, 466, 494
+    262, 294, 330, 349, 392, 440, 494, 523
 };
 const int pianoBtns[] = {
-    30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41
+    5, 6, 10, 11, 30, 34, 38, 43, 46, 50
 };
 bool btnPressed[] = {
-    false, false, false, false, false, false, false, false, false, false, false, false
+    false, false, false, false, false, false, false, false, false, false, false
 };
 
 void testDifficultyRgb(int rgb[], int analog = 255) {
@@ -41,7 +41,7 @@ void testCorrectRgb(int pinR, int pinG) {
 }
 
 void testBuzzer(int pin) {
-    for(int i = 0; i < sizeof(hz); i++) {
+    for(int i = 0; i < (sizeof(hz) / sizeof(hz[0])); i++) {
         tone(pin, hz[i]);
         delay(300);
         noTone(pin);
@@ -73,7 +73,7 @@ void setup() {
     Serial.println("testing third buzzer...");
     testBuzzer(buzzers[2]);
 
-    for(int i = 0; i < 12; i++) {
+    for(int i = 0; i < 10; i++) {
         pinMode(pianoBtns[i], INPUT);
     }
     Serial.println("testing piano buttons...\nplease press buttons in order");
@@ -81,16 +81,18 @@ void setup() {
 
 void loop() {
     bool allTrue = true;
-    for(int i = 0; i < 12; i++) {
+    for(int i = 0; i < 10; i++) {
+        allTrue = allTrue && btnPressed[i];
         if(digitalRead(pianoBtns[i]) && !btnPressed[i]) {
             char text[100];
-            snprintf(text, 100, "Button that connected at %fpin was pressed!", pianoBtns[i]);
+            snprintf(text, 100, "Button that connected at %ipin was pressed!", pianoBtns[i]);
             Serial.println(text);
             btnPressed[i] = true;
+            break;
         }
-        allTrue = allTrue && btnPressed[i];
     }
     if(allTrue) {
         Serial.println("All test was ended.");
+        delay(10000);
     }
 }
