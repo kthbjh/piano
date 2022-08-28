@@ -1,7 +1,7 @@
-int difficultyRgb[3] = {A5, A6, A7};
+int difficultyRgb[3] = {A0, A1, A2};
 const int selectDifficultyBtn = 5;
 const int startGameBtn = 6;
-const int buzzers[3] = {A1, A2, A3};
+const int buzzers[3] = {A3, A4, A5};
 const int isCorrectRgbs[3][2] = {
     {
         22, 23
@@ -17,7 +17,7 @@ const int hz[] = {
     262, 294, 330, 349, 392, 440, 494, 523
 };
 const int pianoBtns[] = {
-    5, 6, 10, 11, 30, 34, 38, 43, 46, 50
+    5, 6, A6, A7, A8, A9, A10, A11, A12, A13
 };
 bool btnPressed[] = {
     false, false, false, false, false, false, false, false, false, false, false
@@ -67,11 +67,11 @@ void setup() {
         testCorrectRgb(isCorrectRgbs[i][0], isCorrectRgbs[i][1]);
     }
     Serial.println("testing first buzzer...");
-    testBuzzer(buzzers[0]);
+    // testBuzzer(buzzers[0]);
     Serial.println("testing second buzzer...");
-    testBuzzer(buzzers[1]);
+    // testBuzzer(buzzers[1]);
     Serial.println("testing third buzzer...");
-    testBuzzer(buzzers[2]);
+    // testBuzzer(buzzers[2]);
 
     for(int i = 0; i < 10; i++) {
         pinMode(pianoBtns[i], INPUT);
@@ -81,7 +81,8 @@ void setup() {
 
 void loop() {
     bool allTrue = true;
-    for(int i = 0; i < 10; i++) {
+    int i = 0;
+    for(; i < 2; i++) {
         allTrue = allTrue && btnPressed[i];
         if(digitalRead(pianoBtns[i]) && !btnPressed[i]) {
             char text[100];
@@ -90,6 +91,18 @@ void loop() {
             btnPressed[i] = true;
             break;
         }
+        delay(50);
+    }
+    for(; i < 10; i++) {
+        allTrue = allTrue && btnPressed[i];
+        if(analogRead(pianoBtns[i]) > 1000 && !btnPressed[i]) {
+            char text[100];
+            snprintf(text, 100, "Button that connected at %ipin was pressed!", pianoBtns[i]);
+            Serial.println(text);
+            btnPressed[i] = true;
+            break;
+        }
+        delay(50);
     }
     if(allTrue) {
         Serial.println("All test was ended.");
