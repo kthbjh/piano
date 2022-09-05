@@ -120,7 +120,7 @@ bool buttonPushed(int pin) {
 
 void loop() {
     if(playingGame) {
-
+        
     }
     else {
         if(digitalRead(difficultyButton)) {
@@ -130,8 +130,8 @@ void loop() {
         if(digitalRead(startGameButton)) {
             startGame();
         }
+        seed = (seed+1) % 30000;
     }
-    seed = (seed+1) % 30000;
 }
 
 // void difficultCho(){
