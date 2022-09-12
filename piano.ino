@@ -21,6 +21,7 @@ const int correctLeds[3][2] = {
         26, 27
     }
 };
+int order = 1;
 
 enum Difficulty {
     EASY,
@@ -48,6 +49,7 @@ void changeDifficulty() {
     }
 }
 int rights[3] = {-1, -1, -1};
+int userInput[3] = {-1, -1, -1};
 void makeRandomArray(int length) {
     int all[8] = {0, 1, 2, 3, 4, 5, 6, 7};
     randomSeed(seed);
@@ -63,7 +65,7 @@ void makeRandomArray(int length) {
     }
 }
 void playRandomTones() {
-    Polytone poly;
+    
     poly.setPins(buzzerPins[0], buzzerPins[1], buzzerPins[2]);
     poly.begin();
     for(int i = 0; i <= gameDifficulty; i++) {
@@ -75,17 +77,100 @@ void playRandomTones() {
 }
 void startGame() {
     playingGame = true;
+    Serial.print("Difficulty: ");
+    Serial.println(gameDifficulty);
     makeRandomArray(gameDifficulty+1);
     playRandomTones();
 }
-void answerEntered() {
-
+bool isCorrected(int answer) {
+    for (int i = 0; i < 3; i++) {
+        if(answer == rights[i]) return true;
+    }
+    return false;
 }
-bool isCorrected() {
-
+void playAnswer() {
+    Serial.println(order);
+    // Serial.println("playanswer");
+    for(int i = 0; i < gameDifficulty+1; i++) {
+        poly.setPins(buzzerPins[i]);
+        poly.begin();
+        poly.tone(gameTone[rights[i]]);
+        delay(500);
+        poly.end();
+        Serial.println(gameTone[rights[i]]);
+    }
+    delay(1500);
+    for(int i = 0; i < order; i++) {
+        poly.setPins(buzzerPins[i]);
+        poly.begin();
+        poly.tone(gameTone[userInput[i]]);
+        delay(500);
+        poly.end();
+        Serial.println(gameTone[userInput[i]]);
+    }
 }
-void gameFinished() {
-
+void finish() {
+    digitalWrite(difficultyLed[0], 0);
+    digitalWrite(difficultyLed[1], 0);
+    digitalWrite(difficultyLed[2], 0);
+    gameDifficulty = HARD;
+    changeDifficulty();
+    playingGame = false;
+    for(int i = 0; i < 3; i++) {
+        userInput[i] = -1;
+        rights[i] = -1;
+        digitalWrite(correctLeds[i][0], LOW);
+        digitalWrite(correctLeds[i][1], LOW);
+    }
+    order=1;
+}
+void gameWon() {
+    for(int i = 0; i< 3; i++) {
+        digitalWrite(correctLeds[0][1], HIGH);
+        digitalWrite(correctLeds[1][1], HIGH);
+        digitalWrite(correctLeds[2][1], HIGH);
+        delay(500);
+        digitalWrite(correctLeds[0][1], LOW);
+        digitalWrite(correctLeds[1][1], LOW);
+        digitalWrite(correctLeds[2][1], LOW);
+        delay(500);
+    }
+    playAnswer();
+    finish();
+}
+void gameLosed() {
+    for(int i = 0; i< 3; i++) {
+        digitalWrite(correctLeds[0][0], HIGH);
+        digitalWrite(correctLeds[1][0], HIGH);
+        digitalWrite(correctLeds[2][0], HIGH);
+        delay(500);
+        digitalWrite(correctLeds[0][0], LOW);
+        digitalWrite(correctLeds[1][0], LOW);
+        digitalWrite(correctLeds[2][0], LOW);
+        delay(500);
+    }
+    playAnswer();
+    finish();
+}
+void answerEntered(int answer) {
+    userInput[order-1] = answer;
+    if(isCorrected(answer)) {
+        Serial.println("correct");
+        if(order-1 == gameDifficulty) {
+            gameWon();
+        }
+        else {
+            digitalWrite(correctLeds[order-1][1], HIGH);
+            //해당 작업들
+            order++;
+        }
+    }
+    else {
+        Serial.println("failed");
+        digitalWrite(correctLeds[answer-1][0], HIGH);
+        delay(500);
+        gameLosed();
+    }
 }
 
 void setup() {
@@ -102,8 +187,6 @@ void setup() {
     Serial.begin(9600);
 }
 
-int pushedBtns[3] = {0, 0, 0};
-
 // void answerCheck() {
 //     for (int i=0; i<2; i++) {
 //         int pushedBtn = pushedBtns[i];
@@ -115,12 +198,30 @@ int pushedBtns[3] = {0, 0, 0};
 
 bool buttonPushed(int pin) {
     int read = analogRead(pin);
+    // // if(read > 800) {
+    //     Serial.println(read);
+    // // }
     return read > 1000;
 }
-
+bool inputedBefore(int answer) {
+    for(int i = 0; i < 3; i++) {
+        if (userInput[i] == answer) return true;
+    }
+    return false;
+}
 void loop() {
+    
     if(playingGame) {
-        
+        // Serial.println("playing");
+        for(int i = 0; i < 8; i++) {
+            if (buttonPushed(buttonPins[i])) {
+                if(inputedBefore(i)) return;
+                Serial.println("button pushed");
+                answerEntered(i);
+                delay(500);
+                break;
+            }
+        }
     }
     else {
         if(digitalRead(difficultyButton)) {
