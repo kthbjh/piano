@@ -4,7 +4,7 @@ Polytone poly;
 
 int seed = 0;
 bool playingGame = false;
-const int buzzerPins[3] = {10, 11, 12};
+const int buzzerPins[3] = {9, 10, 11};
 const int buttonPins[8] = {A6, A7, A8, A9, A10, A11, A12, A13};
 const int difficultyButton = 5;
 const int startGameButton = 6;
@@ -48,8 +48,21 @@ void changeDifficulty() {
         analogWrite(difficultyLed[2], 0);
     }
 }
-int rights[3] = {-1, -1, -1};
-int userInput[3] = {-1, -1, -1};
+int rights[3] = {9999, 9999, 9999};
+int userInput[3] = {9999, 9999, 9999};
+int* arrSort(int arr[]) {
+    int temp;
+    for (int i = 0; i < 3; i++) {
+        for(int j = i+1; j <3; j++) {
+            if(arr[i] > arr[j]) {
+                temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+        }
+    }
+    return arr;
+}
 void makeRandomArray(int length) {
     int all[8] = {0, 1, 2, 3, 4, 5, 6, 7};
     randomSeed(seed);
@@ -65,7 +78,6 @@ void makeRandomArray(int length) {
     }
 }
 void playRandomTones() {
-    
     poly.setPins(buzzerPins[0], buzzerPins[1], buzzerPins[2]);
     poly.begin();
     for(int i = 0; i <= gameDifficulty; i++) {
@@ -89,24 +101,32 @@ bool isCorrected(int answer) {
     return false;
 }
 void playAnswer() {
+    int* sortedUserInput = arrSort(userInput);
+    int* sortedRights = arrSort(rights);
     Serial.println(order);
     // Serial.println("playanswer");
+    Serial.println("Rights");
+    for(int i = 0; i < 3; i++) {
+        Serial.println(sortedRights[i]);
+    }
+    Serial.println("answered");
+    for(int i = 0; i < 3; i++) {
+        Serial.println(sortedUserInput[i]);
+    }
     for(int i = 0; i < gameDifficulty+1; i++) {
         poly.setPins(buzzerPins[i]);
         poly.begin();
-        poly.tone(gameTone[rights[i]]);
+        poly.tone(gameTone[sortedRights[i]]);
         delay(500);
         poly.end();
-        Serial.println(gameTone[rights[i]]);
     }
     delay(1500);
     for(int i = 0; i < order; i++) {
         poly.setPins(buzzerPins[i]);
         poly.begin();
-        poly.tone(gameTone[userInput[i]]);
+        poly.tone(gameTone[sortedUserInput[i]]);
         delay(500);
         poly.end();
-        Serial.println(gameTone[userInput[i]]);
     }
 }
 void finish() {
@@ -117,8 +137,8 @@ void finish() {
     changeDifficulty();
     playingGame = false;
     for(int i = 0; i < 3; i++) {
-        userInput[i] = -1;
-        rights[i] = -1;
+        userInput[i] = 9999;
+        rights[i] = 9999;
         digitalWrite(correctLeds[i][0], LOW);
         digitalWrite(correctLeds[i][1], LOW);
     }
@@ -139,6 +159,8 @@ void gameWon() {
     finish();
 }
 void gameLosed() {
+    digitalWrite(correctLeds[0][1], LOW);
+    digitalWrite(correctLeds[1][1], LOW);
     for(int i = 0; i< 3; i++) {
         digitalWrite(correctLeds[0][0], HIGH);
         digitalWrite(correctLeds[1][0], HIGH);
@@ -187,20 +209,8 @@ void setup() {
     Serial.begin(9600);
 }
 
-// void answerCheck() {
-//     for (int i=0; i<2; i++) {
-//         int pushedBtn = pushedBtns[i];
-//         if (pushedBtn == gameTone[i]) {
-            
-//         }
-//     }
-// }
-
 bool buttonPushed(int pin) {
     int read = analogRead(pin);
-    // // if(read > 800) {
-    //     Serial.println(read);
-    // // }
     return read > 1000;
 }
 bool inputedBefore(int answer) {
@@ -234,7 +244,3 @@ void loop() {
         seed = (seed+1) % 30000;
     }
 }
-
-// void difficultCho(){
-//     if 
-// }
