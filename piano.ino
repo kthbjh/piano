@@ -189,7 +189,7 @@ void answerEntered(int answer) {
     }
     else {
         Serial.println("failed");
-        digitalWrite(correctLeds[answer-1][0], HIGH);
+        digitalWrite(correctLeds[order-1][0], HIGH);
         delay(500);
         gameLosed();
     }
