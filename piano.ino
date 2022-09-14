@@ -8,7 +8,7 @@ const int buzzerPins[3] = {9, 10, 11};
 const int buttonPins[8] = {A6, A7, A8, A9, A10, A11, A12, A13};
 const int difficultyButton = 5;
 const int startGameButton = 6;
-const int gameTone[8] = {262, 294, 330, 349, 392, 440, 494, 523};
+const int gameTone[8] = {264, 296, 332, 351, 394, 442, 495, 525};
 const int difficultyLed[3] = {A0, A1, A2};
 const int correctLeds[3][2] = {
     {
