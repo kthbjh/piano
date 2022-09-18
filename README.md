@@ -21,3 +21,24 @@
 7. 정답에 해당하는 음이 순서대로 하나씩 출력됨
 8. 사용자가 선택한 음이 순서대로 하나씩 출력됨
 
+## 오픈소스 라이브러리
+- arduino-polytone(https://github.com/connornishijima/arduino-polytone) - connornishijima, GNU GENERAL PUBLIC LICENSE Version 3
+
+### 사용 부품
+- Arduino Mega
+- 수동 부저 x3
+- 버튼 모듈 x2(게임 시작, 난이도 선택)
+- RGB LED x4
+- 버튼 x16(건반 하나당 2개)
+- 브레드보드 x2(400홀)
+
+### 회로 연결
+- 난이도 LED(R, G, B): (A0, A1, A2)
+- 난이도 선택 버튼: 5
+- 게임 시작 버튼: 6
+- 부저(3개): A3, A4, A5
+- 정답 LED(3개)(R, G): (22, 23), (24, 25), (26, 27)
+- 건반 버튼(도레미파솔라시도): A6, A7, A8, A9, A10, A11, A12, A13
+
+## 주의
+- 이 레포지트리에 있는 알고리즘.txt파일과 실제 알고리즘에 다소의 차이가 있습니다.
